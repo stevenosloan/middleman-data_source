@@ -64,4 +64,22 @@ describe Middleman::DataSource::Extension do
     it_behaves_like "data import"
   end
 
+
+  context "with multiple instances" do
+    before :each do
+      Given.fixture 'multiple_instances'
+      @mm = Middleman::Fixture.app
+      @extension = @mm.extensions[:data_source]
+    end
+
+    after :each do
+      Given.cleanup!
+    end
+
+    it "returns data from both instances" do
+      expect( @mm.data.remote ).to eq [{"item" => "one"}, {"item" => "two"}]
+      expect( @mm.data.in_yaml ).to eq ["data","in","yaml"]
+    end
+  end
+
 end

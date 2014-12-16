@@ -2,6 +2,7 @@ module Middleman
   module DataSource
 
     class Extension < ::Middleman::Extension
+      self.supports_multiple_instances = true
 
       option :rack_app,  nil, 'rack app to use'
       option :root,      nil, 'http(s) host to use'
