@@ -19,5 +19,6 @@ Gem::Specification.new do |s|
 
   # Utility
   s.add_dependency "middleman", ["~> 3.1"]
+  s.add_dependency "borrower",  ["~> 0.9"]
 
 end

@@ -6,18 +6,7 @@ describe Middleman::DataSource::Extension do
     expect( Middleman::Extensions.registered[:data_source] ).to eq Middleman::DataSource::Extension
   end
 
-  context "with the base fixture app" do
-
-    before :each do
-      Given.fixture 'base'
-      @mm = Middleman::Fixture.app
-      @extension = @mm.extensions[:data_source]
-    end
-
-    after :each do
-      Given.cleanup!
-    end
-
+  shared_examples "data import" do
     it "adds data to application" do
       expect( @mm.data.remote ).to eq [{"item" => "one"}, {"item" => "two"}]
     end
@@ -30,7 +19,20 @@ describe Middleman::DataSource::Extension do
       expect( @mm.data.in_yaml ).to eq ["data","in","yaml"]
       expect( @mm.data.in_json ).to eq ["data","in","json"]
     end
+  end
 
+  context "with the base fixture app" do
+    before :each do
+      Given.fixture 'base'
+      @mm = Middleman::Fixture.app
+      @extension = @mm.extensions[:data_source]
+    end
+
+    after :each do
+      Given.cleanup!
+    end
+
+    it_behaves_like "data import"
   end
 
   context "with unsupported_extension" do
@@ -46,6 +48,20 @@ describe Middleman::DataSource::Extension do
     it "raises UnsupportedDataExtension" do
       expect{ @app.data.unsupported }.to raise_error Middleman::DataSource::Extension::UnsupportedDataExtension
     end
+  end
+
+  context "with root set to http source" do
+    before :each do
+      Given.fixture 'borrower'
+      @mm = Middleman::Fixture.app
+      @extension = @mm.extensions[:data_source]
+    end
+
+    after :each do
+      Given.cleanup!
+    end
+
+    it_behaves_like "data import"
   end
 
 end
