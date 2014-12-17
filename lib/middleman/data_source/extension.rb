@@ -19,23 +19,36 @@ module Middleman
           parts     = remote_file.split(File::SEPARATOR)[0..-2]
 
           if parts.empty?
+            original_callback = app.data.callbacks[basename]
             app.data.callbacks[basename] = Proc.new do
-              ::Middleman::Util.recursively_enhance decode_data(remote_file, extension)
+              attempt_merge_then_enhance decode_data(remote_file, extension), original_callback
             end
           else
+            original_callback = app.data.callbacks[parts.first]
             app.data.callbacks[parts.first] = Proc.new do
               built_data = { basename => decode_data(remote_file, extension) }
               parts[1..-1].reverse.each do |part|
                 built_data = { part => built_data }
               end
 
-              ::Middleman::Util.recursively_enhance built_data
+              attempt_merge_then_enhance built_data, original_callback
             end
           end
         end
       end
 
       private
+
+        def attempt_merge_then_enhance new_data, original_callback
+          if original_callback
+            original_data = original_callback.call
+            if original_data.respond_to? :merge
+              return ::Middleman::Util.recursively_enhance original_data.deep_merge(new_data)
+            end
+          end
+
+          return ::Middleman::Util.recursively_enhance new_data
+        end
 
         def decode_data file_path, extension
           if ['.yaml', '.yml'].include? extension

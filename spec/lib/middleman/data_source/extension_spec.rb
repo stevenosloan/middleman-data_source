@@ -15,6 +15,11 @@ describe Middleman::DataSource::Extension do
       expect( @mm.data.deeply.nested.routes ).to eq [{"item" => "one"}, {"item" => "two"}]
     end
 
+    it "attempts to not clobber data of overlapping nested routes (if it's hashes)" do
+      expect( @mm.data.deeply.nested.has_key? "nestable" ).to eq true
+      expect( @mm.data.deeply.nested["nestable"] ).to eq "data"
+    end
+
     it "support yaml or json" do
       expect( @mm.data.in_yaml ).to eq ["data","in","yaml"]
       expect( @mm.data.in_json ).to eq ["data","in","json"]

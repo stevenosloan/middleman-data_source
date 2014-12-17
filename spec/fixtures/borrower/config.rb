@@ -7,6 +7,7 @@ activate :data_source do |c|
 
   c.files = [
     'remote.json',
+    'deeply/nested.json',
     'deeply/nested/routes.json',
     'in_yaml.yml',
     'in_json.json'
