@@ -16,9 +16,21 @@ module Middleman
         options.files.each do |remote_file|
           extension = File.extname  remote_file
           basename  = File.basename remote_file, extension
+          parts     = remote_file.split(File::SEPARATOR)[0..-2]
 
-          app.data.callbacks[basename] = Proc.new do
-            ::Middleman::Util.recursively_enhance(decode_data(remote_file, extension))
+          if parts.empty?
+            app.data.callbacks[basename] = Proc.new do
+              ::Middleman::Util.recursively_enhance decode_data(remote_file, extension)
+            end
+          else
+            app.data.callbacks[parts.first] = Proc.new do
+              built_data = { basename => decode_data(remote_file, extension) }
+              parts[1..-1].reverse.each do |part|
+                built_data = { part => built_data }
+              end
+
+              ::Middleman::Util.recursively_enhance built_data
+            end
           end
         end
       end
