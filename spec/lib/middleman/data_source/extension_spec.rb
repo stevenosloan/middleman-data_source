@@ -87,4 +87,22 @@ describe Middleman::DataSource::Extension do
     end
   end
 
+  context "with files specified as hash" do
+    before :each do
+      Given.fixture 'files_as_hash'
+      @mm = Middleman::Fixture.app
+      @extension = @mm.extensions[:data_source]
+    end
+
+    after :each do
+      Given.cleanup!
+    end
+
+    it "maps correctly between route & data name" do
+      expect( @mm.data.mapped_nested["nestable"] ).to eq "data"
+      expect( @mm.data.mapped_in_yaml ).to eq ["data","in","yaml"]
+      expect( @mm.data.mapped_in_json ).to eq ["data","in","json"]
+    end
+  end
+
 end

@@ -12,11 +12,23 @@ module Middleman
         @_rack_app ||= ::Rack::Test::Session.new( ::Rack::MockSession.new( options.rack_app ) )
       end
 
+      # files = [
+      #  '/url' => 'data/name'
+      # ]
+
       def after_configuration
-        options.files.each do |remote_file|
-          extension = File.extname  remote_file
-          basename  = File.basename remote_file, extension
-          parts     = remote_file.split(File::SEPARATOR)[0..-2]
+        remote_datas = if options.files.respond_to? :keys
+          options.files
+        else
+          Hash[options.files.map do |remote_file|
+            [remote_file, remote_file]
+          end]
+        end
+
+        remote_datas.each do |remote_file, local_representation|
+          extension = File.extname remote_file
+          parts     = local_representation.split(File::SEPARATOR)
+          basename  = File.basename parts.pop, extension
 
           if parts.empty?
             original_callback = app.data.callbacks[basename]

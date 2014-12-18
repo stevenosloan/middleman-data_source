@@ -34,6 +34,18 @@ And access them like any other data:
 = data.some.title
 ```
 
+You can also specify data resources as a hash to map the name:
+
+```ruby
+# config.rb (in data_source activation block)
+c.files = {
+  "/url/to/resource.json" => "my_resource"
+}
+
+# source/index.html
+= data.my_resource
+```
+
 You can fetch your data in two ways:
 1. from the file system or web with [Borrower](http://github.com/stevenosloan/borrower)
 2. with a rack app
