@@ -1,3 +1,4 @@
+# 0.2.0
 - add support for specifying file resources as a hash so you can do
   ```ruby
   c.files = {
