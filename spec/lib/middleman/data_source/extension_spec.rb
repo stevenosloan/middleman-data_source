@@ -105,4 +105,11 @@ describe Middleman::DataSource::Extension do
     end
   end
 
+  it "allows for imediate use in config once defined" do
+    Given.fixture 'imediate_use'
+    @mm = Middleman::Fixture.app
+
+    expect( @mm.remote_data ).to match_array [{"item"=>"one"},{"item"=>"two"}]
+  end
+
 end

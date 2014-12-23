@@ -12,11 +12,10 @@ module Middleman
         @_rack_app ||= ::Rack::Test::Session.new( ::Rack::MockSession.new( options.rack_app ) )
       end
 
-      # files = [
-      #  '/url' => 'data/name'
-      # ]
+      def initialize app, options_hash={}, &block
+        super app, options_hash, &block
 
-      def after_configuration
+        app_inst     = app.inst
         remote_datas = if options.files.respond_to? :keys
           options.files
         else
@@ -31,13 +30,13 @@ module Middleman
           basename  = File.basename parts.pop, extension
 
           if parts.empty?
-            original_callback = app.data.callbacks[basename]
-            app.data.callbacks[basename] = Proc.new do
+            original_callback = app_inst.data.callbacks[basename]
+            app_inst.data.callbacks[basename] = Proc.new do
               attempt_merge_then_enhance decode_data(remote_file, extension), original_callback
             end
           else
-            original_callback = app.data.callbacks[parts.first]
-            app.data.callbacks[parts.first] = Proc.new do
+            original_callback = app_inst.data.callbacks[parts.first]
+            app_inst.data.callbacks[parts.first] = Proc.new do
               built_data = { basename => decode_data(remote_file, extension) }
               parts[1..-1].reverse.each do |part|
                 built_data = { part => built_data }
