@@ -1,3 +1,4 @@
+# 0.3.0
 - add support for using remote data imediatly after activating the extension
 
 # 0.2.0
