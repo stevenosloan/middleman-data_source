@@ -109,7 +109,8 @@ describe Middleman::DataSource::Extension do
     Given.fixture 'imediate_use'
     @mm = Middleman::Fixture.app
 
-    expect( @mm.remote_data ).to match_array [{"item"=>"one"},{"item"=>"two"}]
+    data = (@mm.respond_to?(:config) && @mm.config.respond_to?(:setting)) ? @mm.config.setting(:remote_data).value : @mm.remote_data
+    expect( data ).to match_array [{"item"=>"one"},{"item"=>"two"}]
   end
 
 end

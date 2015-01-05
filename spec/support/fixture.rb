@@ -1,19 +1,29 @@
+
+begin
+  require 'middleman-core/rack'
+rescue LoadError
+end
+
+
 module Middleman
   module Fixture
 
     class << self
 
-      def default env=:test
-        Middleman::Application.server.inst do
-          set :environment, env
-        end
-      end
-
       def app &block
         ENV['MM_ROOT'] = Given::TMP
-        Middleman::Application.server.inst do
-          instance_eval(&block) if block
+
+        if Middleman::Application.respond_to?(:server)
+          app = Middleman::Application.server.inst do
+            instance_eval(&block) if block
+          end
+        else
+          app = Middleman::Application.new do
+            instance_eval(&block) if block
+          end
         end
+
+        app
       end
 
     end

@@ -1,4 +1,5 @@
 require 'rspec'
+require 'rack/builder'
 require 'rack/test'
 require 'middleman'
 

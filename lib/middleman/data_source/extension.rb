@@ -15,7 +15,7 @@ module Middleman
       def initialize app, options_hash={}, &block
         super app, options_hash, &block
 
-        app_inst     = app.inst
+        app_inst     = app.respond_to?(:inst) ? app.inst : app
         remote_datas = if options.files.respond_to? :keys
           options.files
         else
