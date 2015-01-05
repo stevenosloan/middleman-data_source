@@ -18,7 +18,8 @@ Gem::Specification.new do |s|
   s.require_path  = "lib"
 
   # Utility
-  s.add_dependency "middleman", ["~> 3.1"]
+  s.add_dependency "middleman", [">= 3.1"]
+  s.add_dependency "rack-test", ["~> 0.6.2"]
   s.add_dependency "borrower",  ["~> 0.9"]
 
 end
