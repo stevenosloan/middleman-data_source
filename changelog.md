@@ -1,3 +1,5 @@
+- add specs & support for middleman v4
+
 # 0.3.0
 - add support for using remote data imediatly after activating the extension
 
