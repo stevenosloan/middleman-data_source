@@ -1,3 +1,4 @@
+# 0.4.0
 - add specs & support for middleman v4
 
 # 0.3.0
