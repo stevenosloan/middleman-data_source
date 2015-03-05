@@ -18,6 +18,7 @@ module Middleman
             instance_eval(&block) if block
           end
         else
+          require 'middleman-core/renderers/sass'
           app = Middleman::Application.new do
             instance_eval(&block) if block
           end
