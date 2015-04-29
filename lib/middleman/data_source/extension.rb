@@ -25,9 +25,10 @@ module Middleman
         end
 
         remote_datas.each do |remote_file, local_representation|
-          extension = File.extname remote_file
-          parts     = local_representation.split(File::SEPARATOR)
-          basename  = File.basename parts.pop, extension
+          raw_extension = File.extname(remote_file)
+          extension     = raw_extension.split('?').first
+          parts         = local_representation.split(File::SEPARATOR)
+          basename      = File.basename(parts.pop, raw_extension)
 
           if parts.empty?
             original_callback = app_inst.data.callbacks[basename]

@@ -14,7 +14,8 @@ activate :data_source do |c|
     'deeply/nested.json',
     'deeply/nested/routes.json',
     'in_yaml.yml',
-    'in_json.json'
+    'in_json.json',
+    'query_param.json?token=foo'
   ]
 
 end

@@ -15,6 +15,10 @@ describe Middleman::DataSource::Extension do
       expect( @mm.data.deeply.nested.routes ).to eq [{"item" => "one"}, {"item" => "two"}]
     end
 
+    it "supports query params" do
+      expect( @mm.data.query_param ).to eq [{"foo" => "bar"}]
+    end
+
     it "attempts to not clobber data of overlapping nested routes (if it's hashes)" do
       expect( @mm.data.deeply.nested.has_key? "nestable" ).to eq true
       expect( @mm.data.deeply.nested["nestable"] ).to eq "data"
