@@ -1,3 +1,6 @@
+# 0.5.0
+- include support for resources that include query params after their file extension [@jordanandree]
+
 # 0.4.0
 - add specs & support for middleman v4
 
