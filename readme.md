@@ -98,6 +98,35 @@ activate :data_source do |c|
 end
 ```
 
+### Custom data types
+
+By default we just look at the extension of a file to determine which decoder to use. By setting a source directly you can give it any data type you need. Each source is a hash with an `alias`, `path`, and `type` key. The `alias` and `path` would be the same as if you defined the source using files as `{ path => alias }`, while type corresponds to the decoder you'd like to use.
+
+There are default decoders for `:yaml` and `:json`, however you are free to override them or create your own types.
+
+```ruby
+# config.rb
+activate :data_source do |c|
+
+  c.files = ['by_extension.ctype']
+
+  c.sources = [
+    {
+      alias: "foo_bar",
+      path: "/foo/bar.ctype",
+      type: :my_type
+    }
+  ]
+
+  c.decoders = {
+    my_type: {
+      extensions: ['.ctype'],
+      decoder: ->(src) { CustomType.parse(src) }
+    }
+  }
+```
+
+In the above example, I can access `app.data.by_extension` w/ the file contents decoded by `CustomType`, because it's extension `.ctype` matches the one defined by the `:my_type` decoder. Similarly, `app.data.foo_bar` is also run through `CustomType` because it's `:type` attribute is set to `:my_type`.
 
 # Testing
 

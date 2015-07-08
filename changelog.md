@@ -1,3 +1,6 @@
+- add definable decoders & allow override of default json & yaml decoders
+- allow for defining sources with arbitrary data types
+
 # 0.5.0
 - include support for resources that include query params after their file extension [@jordanandree]
 

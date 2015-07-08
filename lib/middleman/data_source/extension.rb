@@ -7,6 +7,10 @@ module Middleman
       option :rack_app,  nil, 'rack app to use'
       option :root,      nil, 'http(s) host to use'
       option :files,      [], 'routes to mount as remote data files'
+      option :sources,    [], 'array of sources to mount as data'
+      option :decoders,   {}, 'callable functions to decode data sources'
+
+      attr_reader :decoders, :sources
 
       def rack_app
         @_rack_app ||= ::Rack::Test::Session.new( ::Rack::MockSession.new( options.rack_app ) )
@@ -15,30 +19,32 @@ module Middleman
       def initialize app, options_hash={}, &block
         super app, options_hash, &block
 
-        app_inst     = app.respond_to?(:inst) ? app.inst : app
-        remote_datas = if options.files.respond_to? :keys
-          options.files
-        else
-          Hash[options.files.map do |remote_file|
-            [remote_file, remote_file]
-          end]
+        app_inst  = app.respond_to?(:inst) ? app.inst : app
+        @sources  = options.sources.dup
+        @decoders = default_decoders.merge(options.decoders)
+
+        options.files.flat_map do |remote_path, local|
+          @sources.push({
+            :alias => (local || remote_path),
+            :path =>  remote_path
+          })
         end
 
-        remote_datas.each do |remote_file, local_representation|
-          raw_extension = File.extname(remote_file)
+        @sources.each do |source|
+          raw_extension = File.extname(source[:path])
           extension     = raw_extension.split('?').first
-          parts         = local_representation.split(File::SEPARATOR)
+          parts         = source[:alias].split(File::SEPARATOR)
           basename      = File.basename(parts.pop, raw_extension)
 
           if parts.empty?
             original_callback = app_inst.data.callbacks[basename]
             app_inst.data.callbacks[basename] = Proc.new do
-              attempt_merge_then_enhance decode_data(remote_file, extension), original_callback
+              attempt_merge_then_enhance decode_data(source, extension), original_callback
             end
           else
             original_callback = app_inst.data.callbacks[parts.first]
             app_inst.data.callbacks[parts.first] = Proc.new do
-              built_data = { basename => decode_data(remote_file, extension) }
+              built_data = { basename => decode_data(source, extension) }
               parts[1..-1].reverse.each do |part|
                 built_data = { part => built_data }
               end
@@ -51,6 +57,19 @@ module Middleman
 
       private
 
+        def default_decoders
+          {
+            json: {
+              extensions: ['.json'],
+              decoder:    ->(source) { ActiveSupport::JSON.decode(source) },
+            },
+            yaml: {
+              extensions: ['.yaml', '.yml'],
+              decoder:    ->(source) { YAML.load(source) }
+            }
+          }
+        end
+
         def attempt_merge_then_enhance new_data, original_callback
           if original_callback
             original_data = original_callback.call
@@ -62,21 +81,27 @@ module Middleman
           return ::Middleman::Util.recursively_enhance new_data
         end
 
-        def decode_data file_path, extension
-          if ['.yaml', '.yml'].include? extension
-            YAML.load get_file_contents file_path
-          elsif extension == '.json'
-            ActiveSupport::JSON.decode get_file_contents file_path
+        def decode_data source, extension
+          if source.has_key? :type
+            decoder = decoders[source[:type]]
           else
-            raise UnsupportedDataExtension
+            decoder = decoders.find do |candidate|
+              candidate[1][:extensions].include? extension
+            end
+            decoder = decoder.last if decoder
           end
+
+          raise UnsupportedDataExtension unless decoder
+
+          decoder[:decoder].call get_file_contents source[:path]
         end
 
         def get_file_contents file_path
           if options.rack_app
             rack_app.get( URI.escape(file_path) ).body
           else
-            Borrower::Content.get File.join( options.root, file_path )
+            file_path = File.join( options.root, file_path ) if options.root
+            Borrower::Content.get file_path
           end
         end
 

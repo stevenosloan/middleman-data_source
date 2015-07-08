@@ -42,6 +42,18 @@ describe Middleman::DataSource::Extension do
     end
 
     it_behaves_like "data import"
+
+    it "allows assignment of sources w/ given type" do
+      expect( @mm.data.foo ).to eq ["one","two","three"]
+    end
+
+    it "allows assignment of custom data decoders" do
+      expect( @mm.data.my_decoder ).to eq ["grass","is","greener"]
+    end
+
+    it "sets custom decoders based on file extensions" do
+      expect( @mm.data.run_through_my_decoder ).to eq ["grass","is","greener"]
+    end
   end
 
   context "with unsupported_extension" do
