@@ -1,3 +1,4 @@
+# 0.6.0
 - add definable decoders & allow override of default json & yaml decoders
 - allow for defining sources with arbitrary data types
 
