@@ -1,3 +1,4 @@
+# 0.6.1
 - fixes for newer versions of middleman 4 compatability
 
 # 0.6.0
