@@ -8,25 +8,25 @@ describe Middleman::DataSource::Extension do
 
   shared_examples "data import" do
     it "adds data to application" do
-      expect( @mm.data.remote ).to eq [{"item" => "one"}, {"item" => "two"}]
+      expect( @mm.data.remote.map(&:to_h) ).to match_array [{"item" => "one"}, {"item" => "two"}]
     end
 
     it "supports nested routes" do
-      expect( @mm.data.deeply.nested.routes ).to eq [{"item" => "one"}, {"item" => "two"}]
+      expect( @mm.data.deeply.nested.routes.map(&:to_h) ).to match_array [{"item" => "one"}, {"item" => "two"}]
     end
 
     it "supports query params" do
-      expect( @mm.data.query_param ).to eq [{"foo" => "bar"}]
+      expect( @mm.data.query_param.map(&:to_h) ).to match_array [{"foo" => "bar"}]
     end
 
     it "attempts to not clobber data of overlapping nested routes (if it's hashes)" do
-      expect( @mm.data.deeply.nested.has_key? "nestable" ).to eq true
+      expect( @mm.data.deeply.nested.to_h.has_key? "nestable" ).to eq true
       expect( @mm.data.deeply.nested["nestable"] ).to eq "data"
     end
 
     it "support yaml or json" do
-      expect( @mm.data.in_yaml ).to eq ["data","in","yaml"]
-      expect( @mm.data.in_json ).to eq ["data","in","json"]
+      expect( @mm.data.in_yaml ).to match_array ["data","in","yaml"]
+      expect( @mm.data.in_json ).to match_array ["data","in","json"]
     end
   end
 
@@ -98,8 +98,8 @@ describe Middleman::DataSource::Extension do
     end
 
     it "returns data from both instances" do
-      expect( @mm.data.remote ).to eq [{"item" => "one"}, {"item" => "two"}]
-      expect( @mm.data.in_yaml ).to eq ["data","in","yaml"]
+      expect( @mm.data.remote ).to match_array [{"item" => "one"}, {"item" => "two"}]
+      expect( @mm.data.in_yaml ).to match_array ["data","in","yaml"]
     end
   end
 
@@ -116,8 +116,8 @@ describe Middleman::DataSource::Extension do
 
     it "maps correctly between route & data name" do
       expect( @mm.data.mapped_nested["nestable"] ).to eq "data"
-      expect( @mm.data.mapped_in_yaml ).to eq ["data","in","yaml"]
-      expect( @mm.data.mapped_in_json ).to eq ["data","in","json"]
+      expect( @mm.data.mapped_in_yaml ).to match_array ["data","in","yaml"]
+      expect( @mm.data.mapped_in_json ).to match_array ["data","in","json"]
     end
   end
 
@@ -125,8 +125,9 @@ describe Middleman::DataSource::Extension do
     Given.fixture 'imediate_use'
     @mm = Middleman::Fixture.app
 
-    data = (@mm.respond_to?(:config) && @mm.config.respond_to?(:setting)) ? @mm.config.setting(:remote_data).value : @mm.remote_data
-    expect( data ).to match_array [{"item"=>"one"},{"item"=>"two"}]
+    remote_data = (@mm.config.setting(:remote_data).value.respond_to?(:value)) ? @mm.config.setting(:remote_data).value.value : @mm.config.setting(:remote_data).value
+
+    expect( remote_data ).to match_array [{"item"=>"one"},{"item"=>"two"}]
   end
 
 end

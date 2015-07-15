@@ -73,8 +73,10 @@ module Middleman
         def attempt_merge_then_enhance new_data, original_callback
           if original_callback
             original_data = original_callback.call
-            if original_data.respond_to? :merge
+            if original_data.respond_to? :deep_merge
               return ::Middleman::Util.recursively_enhance original_data.deep_merge(new_data)
+            elsif original_data.respond_to? :merge
+              return ::Middleman::Util.recursively_enhance deep_merge(original_data, new_data)
             end
           end
 
@@ -102,6 +104,19 @@ module Middleman
           else
             file_path = File.join( options.root, file_path ) if options.root
             Borrower::Content.get file_path
+          end
+        end
+
+        def deep_merge base, extension
+          base.merge extension do |key, old_val, new_val|
+            old_val = old_val.to_hash if old_val.respond_to?(:to_hash)
+            new_val = new_val.to_hash if new_val.respond_to?(:to_hash)
+
+            if old_val.respond_to?(:merge) && new_val.respond_to?(:merge)
+              deep_merge old_val, new_val
+            else
+              new_val
+            end
           end
         end
 
