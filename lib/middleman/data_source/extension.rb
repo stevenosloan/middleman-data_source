@@ -61,7 +61,7 @@ module Middleman
           {
             json: {
               extensions: ['.json'],
-              decoder:    ->(source) { ActiveSupport::JSON.decode(source) },
+              decoder:    ->(source) { JSON.parse(source) },
             },
             yaml: {
               extensions: ['.yaml', '.yml'],

@@ -1,3 +1,5 @@
+- stop using `ActiveSupport::JSON` to parse json, this causes dates to no longer be decoded. To restore the original behavior, add a custom decoder for json.
+
 # 0.6.1
 - fixes for newer versions of middleman 4 compatability
 
