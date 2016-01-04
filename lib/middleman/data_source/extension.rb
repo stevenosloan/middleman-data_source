@@ -5,7 +5,7 @@ module Middleman
       self.supports_multiple_instances = true
 
       option :rack_app,  nil, 'rack app to use'
-      option :root,      nil, 'http(s) host to use'
+      option :root,      nil, 'http(s) host or file path to use'
       option :files,      [], 'routes to mount as remote data files'
       option :sources,    [], 'array of sources to mount as data'
       option :decoders,   {}, 'callable functions to decode data sources'
@@ -23,14 +23,9 @@ module Middleman
         @sources  = options.sources.dup
         @decoders = default_decoders.merge(options.decoders)
 
-        options.files.flat_map do |remote_path, local|
-          @sources.push({
-            :alias => (local || remote_path),
-            :path =>  remote_path
-          })
-        end
+        sources.push *convert_files_to_sources(options.files)
 
-        @sources.each do |source|
+        sources.each do |source|
           raw_extension = File.extname(source[:path])
           extension     = raw_extension.split('?').first
           parts         = source[:alias].split(File::SEPARATOR)
@@ -56,6 +51,15 @@ module Middleman
       end
 
       private
+
+        def convert_files_to_sources files={}
+          files.flat_map do |remote_path, local|
+            {
+              alias: (local || remote_path),
+              path: remote_path
+            }
+          end
+        end
 
         def default_decoders
           {
