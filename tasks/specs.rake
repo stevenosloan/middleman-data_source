@@ -38,10 +38,18 @@ namespace :specs do
     end
   end
 
+  desc "run middleman specs w/ CI gemfile"
+  task :ci do
+    system 'bundle exec rspec spec/'
+  end
 end
 
 desc "run all specs on ruby #{RUBY_VERSION}"
 task :specs do
-  Rake::Task['specs:stable'].invoke
-  Rake::Task['specs:head'].invoke
+  if ENV['CI']
+    Rake::Task['specs:ci'].invoke
+  else
+    Rake::Task['specs:stable'].invoke
+    Rake::Task['specs:head'].invoke
+  end
 end

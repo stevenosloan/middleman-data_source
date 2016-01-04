@@ -3,4 +3,4 @@ loader_gemfile.sub! "gemspec", 'gemspec path: "../../"'
 loader_gemfile.sub! "path: 'spec/", "path: '../../spec/"
 eval loader_gemfile, binding
 
-gem 'middleman', git: 'git@github.com:middleman/middleman.git'
+gem 'middleman', '~> 4.0'

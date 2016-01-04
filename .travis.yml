@@ -1,0 +1,10 @@
+language: ruby
+cache: bundler
+rvm:
+  - 2.0
+  - 2.1
+  - 2.2
+  - 2.3
+gemfile:
+  - spec/gemfiles/middleman.3.3.gemfile
+  - spec/gemfiles/middleman.4.0.gemfile
