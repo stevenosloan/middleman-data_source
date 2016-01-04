@@ -40,7 +40,7 @@ namespace :specs do
 
   desc "run middleman specs w/ CI gemfile"
   task :ci do
-    system 'bundle exec rspec spec/'
+    system 'bundle exec rspec ./spec/'
   end
 end
 

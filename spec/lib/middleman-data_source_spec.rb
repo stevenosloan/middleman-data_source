@@ -1,4 +1,2 @@
-require 'spec_helper'
-
-describe Middleman::DataSource do
+RSpec.describe Middleman::DataSource do
 end
