@@ -128,4 +128,24 @@ RSpec.describe Middleman::DataSource::Extension do
     expect( remote_data ).to match_array [{"item"=>"one"},{"item"=>"two"}]
   end
 
+  context "with nested alias locations" do
+    before :each do
+      Given.fixture 'nested_alias'
+      @mm = Middleman::Fixture.app
+    end
+
+    after :each do
+      Given.cleanup!
+    end
+
+    it "puts data into the nested data location as though alias was a path" do
+      expect( @mm.data.mounted.remote.data ).to eq 'remote'
+    end
+
+    it "allows for overlapping paths" do
+      expect( @mm.data.mounted.data ).to eq 'remote'
+    end
+
+  end
+
 end
