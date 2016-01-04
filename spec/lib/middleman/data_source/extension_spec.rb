@@ -148,4 +148,28 @@ RSpec.describe Middleman::DataSource::Extension do
 
   end
 
+
+  context "with collection app" do
+    before :each do
+      Given.fixture 'collection'
+      @mm = Middleman::Fixture.app
+    end
+
+    after :each do
+      Given.cleanup!
+    end
+
+    it "makes collection items available at aliases" do
+      expect( @mm.data.root.john.title ).to eq "John"
+      expect( @mm.data.root.hodor.title ).to eq "Hodor"
+    end
+
+    it "makes collection index available at #all" do
+      expect( @mm.data.root.all.map(&:to_h) ).to match_array [{ "extra" => "info",
+                                                                "slug" => "hodor" },
+                                                              { "extra" => "info",
+                                                                "slug" => "john" }]
+    end
+  end
+
 end

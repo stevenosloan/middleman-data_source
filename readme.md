@@ -128,11 +128,70 @@ activate :data_source do |c|
 
 In the above example, I can access `app.data.by_extension` w/ the file contents decoded by `CustomType`, because it's extension `.ctype` matches the one defined by the `:my_type` decoder. Similarly, `app.data.foo_bar` is also run through `CustomType` because it's `:type` attribute is set to `:my_type`.
 
+
+### Creating a collection
+
+Collections allow you to collection sources that have belong together in an array and have distinct urls. This would loosely follow the Rails index/show convension. For example, lets say we have an endpoint that tells us about some Game of Thrones characters, and then includes a single endpoint for each with expanded information:
+
+```json
+# /got/index.json
+[
+  { "name": "Eddard Stark", "url": "/got/eddard-stark.json" },
+  { "name": "Hodor", "url": "/got/hodor.json" }
+]
+```
+
+```json
+# /got/eddard-stark.json
+{
+  name: 'Eddard Stark',
+  quote: 'Winter is coming'
+}
+
+#/got/hodor.json
+{
+  name: 'Hodor',
+  quote: 'Hodor!'
+}
+```
+
+Then set up a collection to access them through Middleman. A collection requires 3 keys, an `alias`, `path`, and `items`. The alias & path act just like a source, except that data will be available at `#{all}.all`. Items should be an object that responds to `#call` and returns an array of sources when given the data from the collection index. A collection for our example API:
+
+```ruby
+activate :data_source do |c|
+  c.root = 'http://winteriscoming.com'
+  c.collection = {
+    alias: 'got_chars',
+    path: '/got/index.json',
+    items: Proc.new { |data|
+      data.map do |char|
+        {
+          alias: char['name'].to_slug,
+          path: char['url']
+        }
+      end
+    }
+  }
+end
+```
+
+You'll see I've used a proc to map our index into sources. The information is then accessible via the data object:
+
+```ruby
+data.got_chars.all.map(&:name)
+# => ['Eddard Stark', 'Hodor']
+
+data.got_chars['eddard-stark'].quote
+# => Winter is coming
+```
+
+
 # Testing
 
 ```bash
 $ rspec
 ```
+
 
 
 # Contributing

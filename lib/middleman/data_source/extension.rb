@@ -9,8 +9,10 @@ module Middleman
       option :files,      [], 'routes to mount as remote data files'
       option :sources,    [], 'array of sources to mount as data'
       option :decoders,   {}, 'callable functions to decode data sources'
+      option :collection, {}, 'group of recursive resources'
 
-      attr_reader :decoders, :sources
+      attr_reader :decoders, :sources, :collection,
+                  :app
 
       def rack_app
         @_rack_app ||= ::Rack::Test::Session.new( ::Rack::MockSession.new( options.rack_app ) )
@@ -18,27 +20,49 @@ module Middleman
 
       def initialize app, options_hash={}, &block
         super app, options_hash, &block
+        app = app.respond_to?(:inst) ? app.inst : app
 
-        app_inst  = app.respond_to?(:inst) ? app.inst : app
-        @sources  = options.sources.dup
-        @decoders = default_decoders.merge(options.decoders)
+        @sources    = options.sources.dup + convert_files_to_sources(options.files)
+        @decoders   = default_decoders.merge(options.decoders)
 
-        sources.push *convert_files_to_sources(options.files)
+        if options.collection.empty?
+          @collection = false
+        else
+          @collection = options.collection
+          sources.push alias: File.join( options.collection[:alias], 'all' ),
+                       path: options.collection[:path]
+        end
 
         sources.each do |source|
+          add_data_callback_for_source(source)
+        end
+
+        if collection
+          collection[:items].call( app.data[collection[:alias]]['all'] ).map do |source|
+            source[:alias] = File.join(collection[:alias], source[:alias])
+            source
+          end.each do |source|
+            add_data_callback_for_source(source)
+          end
+        end
+      end
+
+      private
+
+        def add_data_callback_for_source source
           raw_extension = File.extname(source[:path])
           extension     = raw_extension.split('?').first
           parts         = source[:alias].split(File::SEPARATOR)
           basename      = File.basename(parts.pop, raw_extension)
 
           if parts.empty?
-            original_callback = app_inst.data.callbacks[basename]
-            app_inst.data.callbacks[basename] = Proc.new do
+            original_callback = app.data.callbacks[basename]
+            app.data.callbacks[basename] = Proc.new do
               attempt_merge_then_enhance decode_data(source, extension), original_callback
             end
           else
-            original_callback = app_inst.data.callbacks[parts.first]
-            app_inst.data.callbacks[parts.first] = Proc.new do
+            original_callback = app.data.callbacks[parts.first]
+            app.data.callbacks[parts.first] = Proc.new do
               built_data = { basename => decode_data(source, extension) }
               parts[1..-1].reverse.each do |part|
                 built_data = { part => built_data }
@@ -48,9 +72,6 @@ module Middleman
             end
           end
         end
-      end
-
-      private
 
         def convert_files_to_sources files={}
           files.flat_map do |remote_path, local|
