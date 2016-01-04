@@ -25,7 +25,7 @@ namespace :specs do
   desc "run middleman specs with currently stable middleman"
   task :stable do
     tracer "running specs on stable middleman 3.3.x on ruby #{RUBY_VERSION}"
-    with_gemfile 'spec/gemfiles/middleman.3.3.gemfile' do
+    with_gemfile 'gemfiles/middleman.3.3.gemfile' do
       'rspec spec/'
     end
   end
@@ -33,14 +33,15 @@ namespace :specs do
   desc "run middleman specs with currently stable middleman"
   task :head do
     tracer "running specs on stable middleman 4.0.x on ruby #{RUBY_VERSION}"
-    with_gemfile 'spec/gemfiles/middleman.4.0.gemfile' do
+    with_gemfile 'gemfiles/middleman.4.0.gemfile' do
       'rspec spec/'
     end
   end
 
   desc "run middleman specs w/ CI gemfile"
   task :ci do
-    system 'bundle exec rspec ./spec/'
+    puts "command: bundle exec rspec #{File.join ENV['TRAVIS_BUILD_DIR'], 'spec'}/"
+    system "bundle exec rspec #{File.join ENV['TRAVIS_BUILD_DIR'], 'spec'}/"
   end
 end
 
