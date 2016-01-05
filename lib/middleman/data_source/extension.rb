@@ -12,7 +12,7 @@ module Middleman
       option :collection, {}, 'group of recursive resources'
 
       attr_reader :decoders, :sources, :collection,
-                  :app
+                  :app_inst
 
       def rack_app
         @_rack_app ||= ::Rack::Test::Session.new( ::Rack::MockSession.new( options.rack_app ) )
@@ -20,7 +20,7 @@ module Middleman
 
       def initialize app, options_hash={}, &block
         super app, options_hash, &block
-        app = app.respond_to?(:inst) ? app.inst : app
+        @app_inst = app.respond_to?(:inst) ? app.inst : app
 
         @sources    = options.sources.dup + convert_files_to_sources(options.files)
         @decoders   = default_decoders.merge(options.decoders)
@@ -38,7 +38,7 @@ module Middleman
         end
 
         if collection
-          collection[:items].call( app.data[collection[:alias]]['all'] ).map do |source|
+          collection[:items].call( app_inst.data[collection[:alias]]['all'] ).map do |source|
             source[:alias] = File.join(collection[:alias], source[:alias])
             source
           end.each do |source|
@@ -56,13 +56,13 @@ module Middleman
           basename      = File.basename(parts.pop, raw_extension)
 
           if parts.empty?
-            original_callback = app.data.callbacks[basename]
-            app.data.callbacks[basename] = Proc.new do
+            original_callback = app_inst.data.callbacks[basename]
+            app_inst.data.callbacks[basename] = Proc.new do
               attempt_merge_then_enhance decode_data(source, extension), original_callback
             end
           else
-            original_callback = app.data.callbacks[parts.first]
-            app.data.callbacks[parts.first] = Proc.new do
+            original_callback = app_inst.data.callbacks[parts.first]
+            app_inst.data.callbacks[parts.first] = Proc.new do
               built_data = { basename => decode_data(source, extension) }
               parts[1..-1].reverse.each do |part|
                 built_data = { part => built_data }

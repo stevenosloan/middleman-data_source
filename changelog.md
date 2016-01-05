@@ -1,4 +1,6 @@
-# 0.7.0
+- fix access to data object in middleman 3.x code branches
+
+# 0.7.0 [YANKED]
 - feat(collection): create a collection type that can generate a collection of resources based off of an index endpoint. [more info](readme.md#creating-a-collection)
 - stop using `ActiveSupport::JSON` to parse json, this causes dates to no longer be decoded. To restore the original behavior, add a custom decoder for json.
 
