@@ -144,14 +144,14 @@ Collections allow you to collection sources that have belong together in an arra
 ```json
 # /got/eddard-stark.json
 {
-  name: 'Eddard Stark',
-  quote: 'Winter is coming'
+  "name": "Eddard Stark",
+  "quote": "Winter is coming"
 }
 
 #/got/hodor.json
 {
-  name: 'Hodor',
-  quote: 'Hodor!'
+  "name": "Hodor",
+  "quote": "Hodor!"
 }
 ```
 
