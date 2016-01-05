@@ -189,6 +189,33 @@ data.got_chars['eddard-stark'].quote
 For index_name, you can also pass `false` to not generate the index data.
 
 
+### Adding Middleware
+
+You may wish to alter the incoming data before it gets added to Middleman's data object, to do so you'll add middleware. Middleware should respond to `#call` and return your altered data. Here's an example where we add "1" to each item in an array:
+
+```yaml
+# count.yaml
+- 1
+- 2
+- 3
+```
+
+```ruby
+# config.rb
+activate :data_source do |c|
+  c.root = "http://example.com"
+  c.sources = [{
+    alias: 'altered',
+    path: 'count.yaml',
+    middleware: Proc.new { |data| data.map { |i| i + 1 } }
+  }]
+end
+
+data.altered
+# => [2, 3, 4]
+```
+
+
 # Testing
 
 ```bash

@@ -131,7 +131,13 @@ module Middleman
 
           raise UnsupportedDataExtension unless decoder
 
-          decoder[:decoder].call get_file_contents source[:path]
+          data = decoder[:decoder].call get_file_contents source[:path]
+
+          if source[:middleware]
+            data = source[:middleware].call data
+          end
+
+          return data
         end
 
         def get_file_contents file_path

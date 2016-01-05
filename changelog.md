@@ -1,3 +1,4 @@
+- add feature for passing `middleware:` option with sources to alter incoming data
 - allow passing `index:` option to collections to define custom index (or `false` for no index)
 
 # 0.7.1
