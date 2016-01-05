@@ -155,7 +155,7 @@ Collections allow you to collection sources that have belong together in an arra
 }
 ```
 
-Then set up a collection to access them through Middleman. A collection requires 3 keys, an `alias`, `path`, and `items`. The alias & path act just like a source, except that data will be available at `#{all}.all`. Items should be an object that responds to `#call` and returns an array of sources when given the data from the collection index. A collection for our example API:
+Then set up a collection to access them through Middleman. A collection requires 3 keys, an `alias`, `path`, and `items`. The alias & path act just like a source, except that data will be available at `#{alias}.#{index}`. Items should be an object that responds to `#call` and returns an array of sources when given the data from the collection index. A collection for our example API:
 
 ```ruby
 activate :data_source do |c|
@@ -163,6 +163,7 @@ activate :data_source do |c|
   c.collection = {
     alias: 'got_chars',
     path: '/got/index.json',
+    index: 'all',
     items: Proc.new { |data|
       data.map do |char|
         {
@@ -184,6 +185,8 @@ data.got_chars.all.map(&:name)
 data.got_chars['eddard-stark'].quote
 # => Winter is coming
 ```
+
+For index_name, you can also pass `false` to not generate the index data.
 
 
 # Testing

@@ -29,10 +29,16 @@ module Middleman
         end
 
         if !options.collection.empty?
-          collection = options.collection
-          add_data_callback_for_source collection.merge alias: File.join( collection[:alias], 'all' )
+          collection = { index: 'all' }.merge options.collection
 
-          collection[:items].call( app_inst.data[collection[:alias]]['all'] ).map do |source|
+          if collection[:index]
+            add_data_callback_for_source collection.merge alias: File.join( collection[:alias], collection[:index] )
+            collection_data_callback = lambda { app_inst.data[collection[:alias]][collection[:index]] }
+          else
+            collection_data_callback = lambda { get_data(collection) }
+          end
+
+          collection[:items].call( collection_data_callback.call() ).map do |source|
             source[:alias] = File.join(collection[:alias], source[:alias])
             source
           end.each do |source|

@@ -1,3 +1,5 @@
+- allow passing `index:` option to collections to define custom index (or `false` for no index)
+
 # 0.7.1
 - allow passing data type to collection
 - fix access to data object in middleman 3.x code branches

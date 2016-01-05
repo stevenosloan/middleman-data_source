@@ -1,7 +1,7 @@
 set :environment,     :test
 set :show_exceptions, false
 
-
+# base collection spec
 activate :data_source do |c|
 
   c.root = File.join( Dir.pwd, 'remote_data' )
@@ -21,7 +21,7 @@ activate :data_source do |c|
 
 end
 
-
+# extensionless
 activate :data_source do |c|
 
   c.root = File.join( Dir.pwd, 'remote_data' )
@@ -35,3 +35,31 @@ activate :data_source do |c|
 
 end
 
+# custom index key
+activate :data_source do |c|
+
+  c.root = File.join( Dir.pwd, 'remote_data' )
+
+  c.collection = {
+    alias: 'custom_index',
+    index: 'dem_things',
+    path: 'custom_index/index.yaml',
+    items: Proc.new { |d| [] }
+  }
+
+end
+
+# no index key
+activate :data_source do |c|
+
+  c.root = File.join( Dir.pwd, 'remote_data' )
+
+  c.collection = {
+    alias: 'no_index',
+    index: false,
+    path: 'no_index/index.yaml',
+    items: Proc.new { |d| [{ alias: 'data',
+                             path: 'no_index/index.yaml' }] }
+  }
+
+end
