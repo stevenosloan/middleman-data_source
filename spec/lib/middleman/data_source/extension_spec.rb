@@ -170,6 +170,10 @@ RSpec.describe Middleman::DataSource::Extension do
                                                               { "extra" => "info",
                                                                 "slug" => "john" }]
     end
+
+    it "allows passing an extension type" do
+      expect( @mm.data.extensionless.all.foo ).to eq "bar"
+    end
   end
 
 end

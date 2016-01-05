@@ -21,3 +21,17 @@ activate :data_source do |c|
 
 end
 
+
+activate :data_source do |c|
+
+  c.root = File.join( Dir.pwd, 'remote_data' )
+
+  c.collection = {
+    alias: 'extensionless',
+    path: 'extensionless/foo',
+    type: :json,
+    items: Proc.new { |d| [] }
+  }
+
+end
+

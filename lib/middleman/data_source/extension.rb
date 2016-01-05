@@ -29,8 +29,7 @@ module Middleman
           @collection = false
         else
           @collection = options.collection
-          sources.push alias: File.join( options.collection[:alias], 'all' ),
-                       path: options.collection[:path]
+          sources.push options.collection.merge alias: File.join( options.collection[:alias], 'all' )
         end
 
         sources.each do |source|
@@ -63,12 +62,16 @@ module Middleman
           else
             original_callback = app_inst.data.callbacks[parts.first]
             app_inst.data.callbacks[parts.first] = Proc.new do
-              built_data = { basename => decode_data(source, extension) }
-              parts[1..-1].reverse.each do |part|
-                built_data = { part => built_data }
-              end
+              begin
+                built_data = { basename => decode_data(source, extension) }
+                parts[1..-1].reverse.each do |part|
+                  built_data = { part => built_data }
+                end
 
-              attempt_merge_then_enhance built_data, original_callback
+                attempt_merge_then_enhance built_data, original_callback
+              rescue => e
+                binding.pry
+              end
             end
           end
         end
