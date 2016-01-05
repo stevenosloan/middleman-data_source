@@ -11,8 +11,7 @@ module Middleman
       option :decoders,   {}, 'callable functions to decode data sources'
       option :collection, {}, 'group of recursive resources'
 
-      attr_reader :decoders, :sources, :collection,
-                  :app_inst
+      attr_reader :decoders, :sources, :app_inst
 
       def rack_app
         @_rack_app ||= ::Rack::Test::Session.new( ::Rack::MockSession.new( options.rack_app ) )
@@ -20,23 +19,19 @@ module Middleman
 
       def initialize app, options_hash={}, &block
         super app, options_hash, &block
+
         @app_inst = app.respond_to?(:inst) ? app.inst : app
-
-        @sources    = options.sources.dup + convert_files_to_sources(options.files)
-        @decoders   = default_decoders.merge(options.decoders)
-
-        if options.collection.empty?
-          @collection = false
-        else
-          @collection = options.collection
-          sources.push options.collection.merge alias: File.join( options.collection[:alias], 'all' )
-        end
+        @sources  = options.sources.dup + convert_files_to_sources(options.files)
+        @decoders = default_decoders.merge(options.decoders)
 
         sources.each do |source|
-          add_data_callback_for_source(source)
+          add_data_callback_for_source source
         end
 
-        if collection
+        if !options.collection.empty?
+          collection = options.collection
+          add_data_callback_for_source collection.merge alias: File.join( collection[:alias], 'all' )
+
           collection[:items].call( app_inst.data[collection[:alias]]['all'] ).map do |source|
             source[:alias] = File.join(collection[:alias], source[:alias])
             source
@@ -49,21 +44,18 @@ module Middleman
       private
 
         def add_data_callback_for_source source
-          raw_extension = File.extname(source[:path])
-          extension     = raw_extension.split('?').first
-          parts         = source[:alias].split(File::SEPARATOR)
-          basename      = File.basename(parts.pop, raw_extension)
+          basename, parts, extension = extract_basename_parts_and_extension source
 
           if parts.empty?
             original_callback = app_inst.data.callbacks[basename]
             app_inst.data.callbacks[basename] = Proc.new do
-              attempt_merge_then_enhance decode_data(source, extension), original_callback
+              attempt_merge_then_enhance get_data(source, extension), original_callback
             end
           else
             original_callback = app_inst.data.callbacks[parts.first]
             app_inst.data.callbacks[parts.first] = Proc.new do
               begin
-                built_data = { basename => decode_data(source, extension) }
+                built_data = { basename => get_data(source, extension) }
                 parts[1..-1].reverse.each do |part|
                   built_data = { part => built_data }
                 end
@@ -111,10 +103,20 @@ module Middleman
           return ::Middleman::Util.recursively_enhance new_data
         end
 
-        def decode_data source, extension
+        def extract_basename_parts_and_extension source
+          raw_extension = File.extname(source[:path])
+          extension     = raw_extension.split('?').first
+          parts         = source[:alias].split(File::SEPARATOR)
+          basename      = File.basename(parts.pop, raw_extension)
+
+          [basename, parts, extension]
+        end
+
+        def get_data source, extension=nil
           if source.has_key? :type
             decoder = decoders[source[:type]]
           else
+            _, _, extension = extract_basename_parts_and_extension(source) unless extension
             decoder = decoders.find do |candidate|
               candidate[1][:extensions].include? extension
             end
