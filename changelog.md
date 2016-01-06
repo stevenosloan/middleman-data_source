@@ -1,3 +1,4 @@
+# 0.8.1
 - remove errant `binding.pry` in rescue block
 
 # 0.8.0
