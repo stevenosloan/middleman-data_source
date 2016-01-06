@@ -43,6 +43,25 @@ namespace :specs do
     puts "command: bundle exec rspec #{File.join ENV['TRAVIS_BUILD_DIR'], 'spec'}/"
     system "bundle exec rspec #{File.join ENV['TRAVIS_BUILD_DIR'], 'spec'}/" or exit(1)
   end
+
+  desc "check for pry statements"
+  task :pry_search do
+    require 'bundler/setup'
+
+    pry_statements = []
+    files = Gem::Specification.find_by_name('middleman-data_source').files.select { |f| f.match(/\.rb$/) }
+    files.each do |f|
+      open(f) do |f|
+        f.each_line.with_index do |line, idx|
+          if /binding\.pry/.match(line)
+            pry_statements.push "#{f.path}:#{idx}"
+          end
+        end
+      end
+    end
+
+    raise "binding.pry found in files\n#{pry_statements.join("\n")}" unless pry_statements.empty?
+  end
 end
 
 desc "run all specs on ruby #{RUBY_VERSION}"
@@ -53,4 +72,5 @@ task :specs do
     Rake::Task['specs:stable'].invoke
     Rake::Task['specs:head'].invoke
   end
+  Rake::Task['specs:pry_search'].invoke
 end
