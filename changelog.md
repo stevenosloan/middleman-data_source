@@ -1,3 +1,5 @@
+- remove errant `binding.pry` in rescue block
+
 # 0.8.0
 - add feature for passing `middleware:` option with sources to alter incoming data
 - allow passing `index:` option to collections to define custom index (or `false` for no index)

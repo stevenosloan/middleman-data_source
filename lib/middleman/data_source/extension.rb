@@ -60,16 +60,12 @@ module Middleman
           else
             original_callback = app_inst.data.callbacks[parts.first]
             app_inst.data.callbacks[parts.first] = Proc.new do
-              begin
-                built_data = { basename => get_data(source, extension) }
-                parts[1..-1].reverse.each do |part|
-                  built_data = { part => built_data }
-                end
-
-                attempt_merge_then_enhance built_data, original_callback
-              rescue => e
-                binding.pry
+              built_data = { basename => get_data(source, extension) }
+              parts[1..-1].reverse.each do |part|
+                built_data = { part => built_data }
               end
+
+              attempt_merge_then_enhance built_data, original_callback
             end
           end
         end
