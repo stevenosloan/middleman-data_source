@@ -3,4 +3,4 @@ loader_gemfile.sub! "gemspec", 'gemspec path: "../"'
 loader_gemfile.sub! "path: 'spec/", "path: '../spec/"
 eval loader_gemfile, binding
 
-gem 'middleman', '~> 3.3.6', source: 'https://rubygems.org'
+gem 'middleman', '~> 4.1', source: 'https://rubygems.org'

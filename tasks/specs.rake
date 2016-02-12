@@ -22,21 +22,19 @@ namespace :specs do
     puts (0..(msg.length+10)).map { |i| "=" }.join
   end
 
-  desc "run middleman specs with currently stable middleman"
-  task :stable do
-    tracer "running specs on stable middleman 3.3.x on ruby #{RUBY_VERSION}"
-    with_gemfile 'gemfiles/middleman.3.3.gemfile' do
-      'rspec spec/' or exit(1)
+  MM_VERSIONS = %w[ 3.4 4.0 4.1 ]
+
+  MM_VERSIONS.each do |version|
+    desc "run middleman specs with MM #{version}"
+    task :"#{version}" do
+      tracer "running specs on middleman #{version} with ruby #{RUBY_VERSION}"
+      with_gemfile "gemfiles/middleman.#{version}.gemfile" do
+        'rspec spec/' or exit(1)
+      end
     end
   end
 
-  desc "run middleman specs with currently stable middleman"
-  task :head do
-    tracer "running specs on stable middleman 4.0.x on ruby #{RUBY_VERSION}"
-    with_gemfile 'gemfiles/middleman.4.0.gemfile' do
-      'rspec spec/' or exit(1)
-    end
-  end
+  task :all_mm => MM_VERSIONS.map { |v| "specs:#{v}" }
 
   desc "run middleman specs w/ CI gemfile"
   task :ci do
@@ -69,8 +67,7 @@ task :specs do
   if ENV['CI']
     Rake::Task['specs:ci'].invoke
   else
-    Rake::Task['specs:stable'].invoke
-    Rake::Task['specs:head'].invoke
+    Rake::Task['specs:all_mm'].invoke
   end
   Rake::Task['specs:pry_search'].invoke
 end

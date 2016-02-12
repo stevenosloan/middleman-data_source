@@ -13,8 +13,9 @@ rvm:
   - ruby-head
 
 gemfile:
-  - gemfiles/middleman.3.3.gemfile
+  - gemfiles/middleman.3.4.gemfile
   - gemfiles/middleman.4.0.gemfile
+  - gemfiles/middleman.4.1.gemfile
 
 matrix:
   allow_failures:
